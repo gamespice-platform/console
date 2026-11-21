@@ -1,10 +1,10 @@
 @tool
-class_name DotConsoleConfig
-extends DotConfig
+class_name GSConsoleConfig
+extends GSConfig
 
 ## Everything about the console a player or an operator can change.
 ##
-## A settings screen for it is free, because GameSpice UI generates one from any [DotConfig] —
+## A settings screen for it is free, because GameSpice UI generates one from any [GSConfig] —
 ## and the key binding in particular belongs in a settings screen rather than in an
 ## export, which is what [member open_action] is for.
 
@@ -33,7 +33,7 @@ extends DotConfig
 
 @export_group("Behaviour")
 
-## Lines of scrollback kept. Bounded on purpose; see [DotConsoleBuffer].
+## Lines of scrollback kept. Bounded on purpose; see [GSConsoleBuffer].
 @export_range(16, 100000, 1) var scrollback_lines: int = 2048
 
 ## Lines of input history kept.
@@ -56,10 +56,10 @@ extends DotConfig
 ##
 ## On: a console that shows output with no prompt is unreadable the moment two commands
 ## produce one line each. Secrets are redacted on the way in regardless — see
-## [DotConsoleLine].
+## [GSConsoleLine].
 @export var echo_input: bool = true
 
-## Whether to mirror everything [DotLog] emits into the scrollback.
+## Whether to mirror everything [GSLog] emits into the scrollback.
 ##
 ## The single most useful thing a console does, and off by default anyway: a dedicated
 ## server at DEBUG produces more lines per second than a player can read, and a console
@@ -67,7 +67,7 @@ extends DotConfig
 ## wants.
 @export var mirror_log: bool = false
 
-## The lowest [DotLog] level mirrored when [member mirror_log] is on.
+## The lowest [GSLog] level mirrored when [member mirror_log] is on.
 @export_enum("trace", "debug", "info", "warn", "error") var mirror_from: int = 2
 
 ## Whether the game keeps running while the console is open.
@@ -100,29 +100,29 @@ func cli_prefix() -> String:
 	return "--console-"
 
 
-func validate() -> DotResult:
+func validate() -> GSResult:
 	if open_action == &"" and open_physical_key == 0:
-		return DotResult.fail(
-			DotError.CODE_INVALID,
+		return GSResult.fail(
+			GSError.CODE_INVALID,
 			"the console has no way to be opened",
 			"set open_action, open_physical_key, or open it from code"
 		)
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
-## The addon name [DotAddonConfig] turns into the folder `dot_console`.
+## The addon name [GSAddonConfig] turns into the folder `dot_console`.
 const CFG_ADDON := "dot-console"
 
 
 ## Applies [param file_name] from `cfg/addons/dot_console/`, the game's `cfg/game/<game>/dot_console/`, then the operator's `cfg/server/addons/` and `cfg/server/game/<game>/` copies.
 ## A flat [param legacy_dir]/[param file_name] is still read (one WARN) while no new copy exists.
 ## Secrets stay file-only: the environment and command line still refuse them.
-func apply_cfg_file(file_name: String = "console.yml", legacy_dir: String = "res://cfg") -> DotResult:
-	return DotAddonConfig.apply_file(CFG_ADDON, file_name, legacy_dir, apply_dictionary)
+func apply_cfg_file(file_name: String = "console.yml", legacy_dir: String = "res://cfg") -> GSResult:
+	return GSAddonConfig.apply_file(CFG_ADDON, file_name, legacy_dir, apply_dictionary)
 
 
-## [method apply_cfg_file], then `DOT_CONSOLE_*`, `--console-*` and validation: [method DotConfig.load_layered] for the yml layout.
-func load_cfg(file_name: String = "console.yml", legacy_dir: String = "res://cfg") -> DotResult:
+## [method apply_cfg_file], then `DOT_CONSOLE_*`, `--console-*` and validation: [method GSConfig.load_layered] for the yml layout.
+func load_cfg(file_name: String = "console.yml", legacy_dir: String = "res://cfg") -> GSResult:
 	unknown_keys = PackedStringArray()
 	var file_res := apply_cfg_file(file_name, legacy_dir)
 	if not file_res.ok:
@@ -132,4 +132,4 @@ func load_cfg(file_name: String = "console.yml", legacy_dir: String = "res://cfg
 	var valid := validate()
 	if not valid.ok:
 		return valid.wrap("Configuration is invalid.")
-	return DotResult.success(self)
+	return GSResult.success(self)

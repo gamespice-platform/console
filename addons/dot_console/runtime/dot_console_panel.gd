@@ -1,4 +1,4 @@
-class_name DotConsolePanel
+class_name GSConsolePanel
 extends Control
 
 ## The console on screen. Built in code, themed by nothing, drawn by the engine.
@@ -10,7 +10,7 @@ extends Control
 ## console that is broken at exactly the moment it is needed.
 ##
 ## [codeblock]
-## var panel := DotConsolePanel.new()
+## var panel := GSConsolePanel.new()
 ## panel.controller = console
 ## add_child(panel)          # to a CanvasLayer, above everything
 ## [/codeblock]
@@ -22,14 +22,14 @@ extends Control
 ## catches: only a rendered frame does. `set_anchors_and_offsets_preset` is the spelling
 ## that works and it is used everywhere below.
 
-# No log channel: a drawer of the controller's buffer, and that buffer mirrors DotLog --
+# No log channel: a drawer of the controller's buffer, and that buffer mirrors GSLog --
 # so a line from here would appear in the panel it came from. The controller logs.
 
-@export var controller: DotConsoleController = null
+@export var controller: GSConsoleController = null
 
 ## The console closed. With [method is_open] and [method close], the shape a menu's list of
 ## overlays duck-types (GameSpice Menu's `add_overlay`): registered there, the console is one
-## more thing the game's "something is open" hook knows about. See [DotConsoleKit].
+## more thing the game's "something is open" hook knows about. See [GSConsoleKit].
 signal closed()
 
 ## Lines drawn. More than this is in the buffer and reachable by scrolling.
@@ -61,7 +61,7 @@ func _ready() -> void:
 
 
 func _build() -> void:
-	var cfg := controller.config if controller != null else DotConsoleConfig.new()
+	var cfg := controller.config if controller != null else GSConsoleConfig.new()
 
 	_root = PanelContainer.new()
 	_root.name = "ConsoleRoot"
@@ -141,7 +141,7 @@ func _on_controller_visibility(open: bool) -> void:
 		closed.emit()
 
 
-func _bind(c: DotConsoleController) -> void:
+func _bind(c: GSConsoleController) -> void:
 	c.line_appended.connect(_on_line)
 	c.visibility_changed.connect(func(open: bool) -> void: _apply_visible(open, false))
 	c.visibility_changed.connect(_on_controller_visibility)
@@ -169,20 +169,20 @@ func _redraw() -> void:
 func _decorate(text: String, level: int) -> String:
 	var escaped := text.replace("[", "[lb]")
 	match level:
-		DotConsoleBuffer.Level.ERROR:
+		GSConsoleBuffer.Level.ERROR:
 			return "[color=#ff6b6b]%s[/color]" % escaped
-		DotConsoleBuffer.Level.WARN:
+		GSConsoleBuffer.Level.WARN:
 			return "[color=#ffc857]%s[/color]" % escaped
-		DotConsoleBuffer.Level.ECHO:
+		GSConsoleBuffer.Level.ECHO:
 			return "[color=#8fd3ff]%s[/color]" % escaped
-		DotConsoleBuffer.Level.DEBUG, DotConsoleBuffer.Level.TRACE:
+		GSConsoleBuffer.Level.DEBUG, GSConsoleBuffer.Level.TRACE:
 			return "[color=#8b95a5]%s[/color]" % escaped
 		_:
 			return escaped
 
 
 func _apply_visible(open: bool, immediate: bool) -> void:
-	var cfg := controller.config if controller != null else DotConsoleConfig.new()
+	var cfg := controller.config if controller != null else GSConsoleConfig.new()
 	var height := size.y * cfg.height_fraction
 	_root.offset_bottom = height
 	_target_y = 0.0 if open else -height
@@ -204,7 +204,7 @@ func _apply_visible(open: bool, immediate: bool) -> void:
 
 
 func _process(delta: float) -> void:
-	var cfg := controller.config if controller != null else DotConsoleConfig.new()
+	var cfg := controller.config if controller != null else GSConsoleConfig.new()
 	if is_equal_approx(_current_y, _target_y):
 		visible = _target_y >= 0.0
 		set_process(false)

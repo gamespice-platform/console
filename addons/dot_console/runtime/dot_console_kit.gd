@@ -1,4 +1,4 @@
-class_name DotConsoleKit
+class_name GSConsoleKit
 extends RefCounted
 
 ## The console a game client builds, built in one call: the key, the panel, `help`,
@@ -6,7 +6,7 @@ extends RefCounted
 ## is running in this process.
 ##
 ## [codeblock]
-## console = DotConsoleKit.build(self, settings_manager, menu)
+## console = GSConsoleKit.build(self, settings_manager, menu)
 ## # ` opens it; `net_stat 2`, `master_volume 0.5`, `help`
 ## [/codeblock]
 ##
@@ -17,7 +17,7 @@ extends RefCounted
 ##
 ## [b]Every argument is duck-typed.[/b] [param settings] is anything with `get_value`,
 ## `set_value` and a `schema` with `keys()`/`find()` (GameSpice Settings' manager); [param menu]
-## is anything with `add_overlay(control)` and `overlay_opened()` (GameSpice Menu's [code]DotMenu
+## is anything with `add_overlay(control)` and `overlay_opened()` (GameSpice Menu's [code]GSMenu
 ## [/code]). This addon keeps its one dependency.
 ##
 ## [b]Registered with the menu as one of its overlays[/b], when there is a menu: so the
@@ -34,32 +34,32 @@ const CHANNEL := "console"
 ## be covered is not one you can debug a stuck screen with.
 static func build(
 	host: Node, settings: Object = null, menu: Object = null, layer: int = 128
-) -> DotConsoleController:
-	var console := DotConsoleController.new()
+) -> GSConsoleController:
+	var console := GSConsoleController.new()
 	console.name = "Console"
-	console.config = DotConsoleConfig.new()
+	console.config = GSConsoleConfig.new()
 	console.config.mirror_log = true
-	console.config.mirror_from = DotLog.Level.INFO
+	console.config.mirror_from = GSLog.Level.INFO
 	host.add_child(console)
 
 	var res := console.setup()
 	if not res.ok:
-		DotLog.warn(CHANNEL, "no console", {"why": res.error.message})
+		GSLog.warn(CHANNEL, "no console", {"why": res.error.message})
 
 	console.add_source(local_source(console, settings))
 
 	# Unprefixed and last, so it catches what this client did not claim -- the family's
-	# default (see DotConsoleRemote's note on prefixes for when that is wrong).
-	var server: Object = DotRegistry.get_service(&"dot_server")
+	# default (see GSConsoleRemote's note on prefixes for when that is wrong).
+	var server: Object = GSRegistry.get_service(&"dot_server")
 	if server != null and server.get("console") != null:
-		console.add_source(DotConsoleBridge.wrap(server.get("console"), "server"))
+		console.add_source(GSConsoleBridge.wrap(server.get("console"), "server"))
 
 	var canvas := CanvasLayer.new()
 	canvas.name = "ConsoleLayer"
 	canvas.layer = layer
 	host.add_child(canvas)
 
-	var panel := DotConsolePanel.new()
+	var panel := GSConsolePanel.new()
 	panel.name = "ConsolePanel"
 	panel.controller = console
 	canvas.add_child(panel)
@@ -75,7 +75,7 @@ static func build(
 
 
 ## The registry name and the script of the player's own block list (GameSpice Chat's
-## `DotChatSelfMute`), reached by name and path so this addon keeps its one dependency.
+## `GSChatSelfMute`), reached by name and path so this addon keeps its one dependency.
 const SELF_MUTE_SERVICE := &"dot_self_mute"
 const SELF_MUTE_SCRIPT := "res://addons/dot_chat/runtime/dot_chat_self_mute.gd"
 
@@ -83,8 +83,8 @@ const SELF_MUTE_SCRIPT := "res://addons/dot_chat/runtime/dot_chat_self_mute.gd"
 ## `sm`, the player's own block list: `sm` lists who is here, `sm <number|name|#userid>`
 ## mutes or unmutes their chat and voice on this client only. Added when GameSpice Chat is in the
 ## build; the same list the chat box's `!sm` runs. False when there is no list to run.
-static func add_self_mute(local: DotConsoleLocal) -> bool:
-	if DotRegistry.get_service(SELF_MUTE_SERVICE) == null and not ResourceLoader.exists(SELF_MUTE_SCRIPT):
+static func add_self_mute(local: GSConsoleLocal) -> bool:
+	if GSRegistry.get_service(SELF_MUTE_SERVICE) == null and not ResourceLoader.exists(SELF_MUTE_SCRIPT):
 		return false
 	local.add_command(&"sm", "Self mute: sm lists players; sm <number|name|#userid> mutes or unmutes their chat and voice for you only",
 		func(args: PackedStringArray) -> Variant:
@@ -97,7 +97,7 @@ static func add_self_mute(local: DotConsoleLocal) -> bool:
 
 
 static func _self_mute() -> Object:
-	var found: Object = DotRegistry.get_service(SELF_MUTE_SERVICE)
+	var found: Object = GSRegistry.get_service(SELF_MUTE_SERVICE)
 	if found != null or not ResourceLoader.exists(SELF_MUTE_SCRIPT):
 		return found
 	var script: Variant = load(SELF_MUTE_SCRIPT)
@@ -109,8 +109,8 @@ static func _self_mute() -> Object:
 
 ## `help`, `clear`, `settings`, `sm`, and every setting [param settings] declares, by its own
 ## name. The part of [method build] a game with its own panel can still use.
-static func local_source(console: DotConsoleController, settings: Object = null) -> DotConsoleLocal:
-	var local := DotConsoleLocal.new()
+static func local_source(console: GSConsoleController, settings: Object = null) -> GSConsoleLocal:
+	var local := GSConsoleLocal.new()
 	local.add_command(&"help", "List what this client can do", func(_a: PackedStringArray) -> Variant:
 		var lines := PackedStringArray(["Client commands:"])
 		for n in console.all_names():

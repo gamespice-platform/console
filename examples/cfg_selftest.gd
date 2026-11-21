@@ -16,7 +16,7 @@ var _sections := 0
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	_run.call_deferred()
 
 
@@ -25,57 +25,57 @@ func _run() -> void:
 	var addon_dir := "user://cfg/addons/" + FOLDER
 	var server_dir := "user://cfg/server/addons/" + FOLDER
 	_clean(addon_dir, server_dir)
-	DotCfgLegacy.reset()
+	GSCfgLegacy.reset()
 
 	_write(LEGACY.path_join(FILE), "scrollback_lines: 1000\nfont_size: 20\n")
-	var config := DotConsoleConfig.new()
+	var config := GSConsoleConfig.new()
 	var res := config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 1000, "only the flat file: it is still read")
-	_check(DotCfgLegacy.warned_count() == 1, "and warned once")
-	DotConsoleConfig.new().load_cfg(FILE, LEGACY)
-	_check(DotCfgLegacy.warned_count() == 1, "a second load does not warn again")
+	_check(GSCfgLegacy.warned_count() == 1, "and warned once")
+	GSConsoleConfig.new().load_cfg(FILE, LEGACY)
+	_check(GSCfgLegacy.warned_count() == 1, "a second load does not warn again")
 
 	_write(addon_dir.path_join(FILE), "scrollback_lines: 2000\n")
-	config = DotConsoleConfig.new()
+	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 2000, "the new path wins over the flat file")
-	_check(config.font_size == DotConsoleConfig.new().font_size, "and the two are never merged")
+	_check(config.font_size == GSConsoleConfig.new().font_size, "and the two are never merged")
 
 	_write(server_dir.path_join(FILE), "scrollback_lines: 3000\n")
-	config = DotConsoleConfig.new()
+	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 3000, "the operator's server layer wins")
 
 	var game_dir := "user://cfg/game/mg-test/" + FOLDER
 	var server_game_dir := "user://cfg/server/game/mg-test/" + FOLDER
-	DotAddonConfig.game = "mg-test"
+	GSAddonConfig.game = "mg-test"
 	_write(game_dir.path_join(FILE), "scrollback_lines: 3500\n")
-	config = DotConsoleConfig.new()
+	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 3000, "the operator's layer still wins over the game tier")
-	DotPaths.remove_tree(server_dir)
-	config = DotConsoleConfig.new()
+	GSPaths.remove_tree(server_dir)
+	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 3500, "the game tier wins over the addon's own")
 	_write(server_game_dir.path_join(FILE), "scrollback_lines: 3700\n")
-	config = DotConsoleConfig.new()
+	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 3700, "the operator's per-game tier wins over the game's")
-	DotAddonConfig.game = ""
-	DotPaths.remove_tree("user://cfg/game/mg-test")
-	DotPaths.remove_tree("user://cfg/server/game/mg-test")
+	GSAddonConfig.game = ""
+	GSPaths.remove_tree("user://cfg/game/mg-test")
+	GSPaths.remove_tree("user://cfg/server/game/mg-test")
 
 	_clean(addon_dir, server_dir)
-	DotCfgLegacy.reset()
+	GSCfgLegacy.reset()
 	_write("user://cfg/server/" + FOLDER + "/" + FILE, "scrollback_lines: 4000\n")
-	config = DotConsoleConfig.new()
+	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
 	_check(res.ok and config.scrollback_lines == 4000, "the old cfg/server/dot_console/ still loads")
-	_check(DotCfgLegacy.warned_count() == 1, "and warns once")
-	DotPaths.remove_tree("user://cfg/server/" + FOLDER)
+	_check(GSCfgLegacy.warned_count() == 1, "and warns once")
+	GSPaths.remove_tree("user://cfg/server/" + FOLDER)
 
 	_clean(addon_dir, server_dir)
-	DotCfgLegacy.reset()
+	GSCfgLegacy.reset()
 	_sections += 1
 	print("%d sections, %d passed, %d failed" % [_sections, _passed, _failed])
 	if _sections != SECTIONS or _passed + _failed != CHECKS:
@@ -86,9 +86,9 @@ func _run() -> void:
 
 
 func _clean(addon_dir: String, server_dir: String) -> void:
-	DotPaths.remove_tree(addon_dir)
-	DotPaths.remove_tree(server_dir)
-	DotPaths.remove_tree(LEGACY)
+	GSPaths.remove_tree(addon_dir)
+	GSPaths.remove_tree(server_dir)
+	GSPaths.remove_tree(LEGACY)
 
 
 func _write(path: String, text: String) -> void:

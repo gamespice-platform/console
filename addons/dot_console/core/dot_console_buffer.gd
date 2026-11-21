@@ -1,4 +1,4 @@
-class_name DotConsoleBuffer
+class_name GSConsoleBuffer
 extends RefCounted
 
 ## The scrollback and the input history. Bounded, both of them.
@@ -77,7 +77,7 @@ func append_lines(lines: PackedStringArray, level: Level = Level.INFO) -> void:
 
 
 ## Appends the outcome of a command, choosing the level from the result.
-func append_result(res: DotResult) -> void:
+func append_result(res: GSResult) -> void:
 	if res == null:
 		return
 	if not res.ok:
@@ -93,7 +93,7 @@ func append_result(res: DotResult) -> void:
 	elif v is Array:
 		for item in v:
 			append(str(item), Level.INFO)
-	elif not DotValue.is_blank(v):
+	elif not GSValue.is_blank(v):
 		append(str(v), Level.INFO)
 
 

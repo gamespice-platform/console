@@ -1,5 +1,5 @@
 @tool
-class_name DotConsoleLine
+class_name GSConsoleLine
 extends RefCounted
 
 ## Splitting a console line, and hiding the half of it that is a secret.
@@ -11,7 +11,7 @@ extends RefCounted
 ## [b]A console that echoes what you typed puts your RCON password in the scrollback, in
 ## the log, and in the screenshot somebody posts to ask why the server will not start.[/b]
 ## This family already refuses secrets from the environment and argv for the same reason
-## — [method DotConfig.sensitive_keys] — and a console is the third place a credential is
+## — [method GSConfig.sensitive_keys] — and a console is the third place a credential is
 ## typed, with the widest audience of the three.
 ##
 ## Matched on the command name, not on the argument, because a password does not look like

@@ -1,17 +1,17 @@
-class_name DotConsoleController
+class_name GSConsoleController
 extends Node
 
 ## The console's whole behaviour, with no [Control] anywhere in it.
 ##
 ## [b]The split is what makes a headless suite possible.[/b] Same rule as GameSpice Spectate's
 ## "computes a transform and touches no camera": the controller owns the sources, the
-## scrollback, the history, the completion and the key, and [DotConsolePanel] draws
+## scrollback, the history, the completion and the key, and [GSConsolePanel] draws
 ## whatever it says. A suite drives the controller directly and never opens a window.
 ##
 ## [codeblock]
-## var console := DotConsoleController.new()
+## var console := GSConsoleController.new()
 ## console.add_source(local)                      # the client's own commands
-## console.add_source(DotConsoleBridge.wrap(server_console))  # duck-typed, unnamed
+## console.add_source(GSConsoleBridge.wrap(server_console))  # duck-typed, unnamed
 ## add_child(console)
 ## console.setup()
 ##
@@ -19,7 +19,7 @@ extends Node
 ## [/codeblock]
 
 const SERVICE := &"dot_console"
-# No `const CHANNEL`. This mirrors DotLog into its own scrollback (`_on_log_record`), so a
+# No `const CHANNEL`. This mirrors GSLog into its own scrollback (`_on_log_record`), so a
 # record from here would be drawn back into the console that wrote it; what it does is
 # shown to the person typing, and each source logs the commands it runs.
 
@@ -33,7 +33,7 @@ signal line_appended(text: String, level: int)
 ## that wants to log or forward it, not for one that wants to veto it.
 signal submitted(line: String)
 
-@export var config: DotConsoleConfig = null
+@export var config: GSConsoleConfig = null
 
 @export var register_as_service: bool = true
 
@@ -44,9 +44,9 @@ signal submitted(line: String)
 ## nothing, which is how a console ends up in a release build.
 @export var enabled: bool = true
 
-var buffer: DotConsoleBuffer = null
+var buffer: GSConsoleBuffer = null
 
-var _sources: Array[DotConsoleSource] = []
+var _sources: Array[GSConsoleSource] = []
 var _open := false
 var _log_sink := Callable()
 var _paused_by_us := false
@@ -54,13 +54,13 @@ var _paused_by_us := false
 
 func _init() -> void:
 	if config == null:
-		config = DotConsoleConfig.new()
-	buffer = DotConsoleBuffer.new()
+		config = GSConsoleConfig.new()
+	buffer = GSConsoleBuffer.new()
 
 
-func setup() -> DotResult:
+func setup() -> GSResult:
 	if config == null:
-		config = DotConsoleConfig.new()
+		config = GSConsoleConfig.new()
 	var res := config.validate()
 	if not res.ok:
 		return res.wrap("console config")
@@ -72,7 +72,7 @@ func setup() -> DotResult:
 		_attach_log_mirror()
 
 	if register_as_service:
-		DotRegistry.register(SERVICE, self)
+		GSRegistry.register(SERVICE, self)
 
 	# Input is handled here rather than in the panel, and unhandled-input is deliberately
 	# not used: the console has to open when a screen stack has swallowed input, because
@@ -85,7 +85,7 @@ func setup() -> DotResult:
 	# it was opened to look at. A console that can pause the game must be exempt from the
 	# pause it causes. A panel drawing it needs the same, for the same reason.
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	return DotResult.success(null)
+	return GSResult.success(null)
 
 
 func _exit_tree() -> void:
@@ -98,7 +98,7 @@ func _exit_tree() -> void:
 		_paused_by_us = false
 	_detach_log_mirror()
 	if register_as_service:
-		DotRegistry.unregister_instance(SERVICE, self)
+		GSRegistry.unregister_instance(SERVICE, self)
 
 
 # --- Sources ----------------------------------------------------------------
@@ -107,16 +107,16 @@ func _exit_tree() -> void:
 ##
 ## A local source added first shadows a server's command of the same name, which is the
 ## right way round — a client's own `volume` is the client's.
-func add_source(source: DotConsoleSource) -> void:
+func add_source(source: GSConsoleSource) -> void:
 	if source != null and not _sources.has(source):
 		_sources.append(source)
 
 
-func remove_source(source: DotConsoleSource) -> void:
+func remove_source(source: GSConsoleSource) -> void:
 	_sources.erase(source)
 
 
-func sources() -> Array[DotConsoleSource]:
+func sources() -> Array[GSConsoleSource]:
 	return _sources.duplicate()
 
 
@@ -127,21 +127,21 @@ func sources() -> Array[DotConsoleSource]:
 ## Statements separated by unquoted semicolons run in order and a failure does not stop
 ## the rest: `map dm_atrium; say hello` with a bad map name should still say hello, which
 ## is what every operator typing a setup line expects.
-func submit(line: String) -> DotResult:
+func submit(line: String) -> GSResult:
 	var trimmed := strip_chat_prefix(line.strip_edges())
 	if trimmed.is_empty():
-		return DotResult.success("")
+		return GSResult.success("")
 
 	# Redacted before anything sees it, including the history. A password in the history
 	# comes back on the next Up arrow, in front of whoever is watching.
-	var shown := DotConsoleLine.redact(trimmed)
+	var shown := GSConsoleLine.redact(trimmed)
 	if config.echo_input:
-		_append("] %s" % shown, DotConsoleBuffer.Level.ECHO)
-	buffer.remember(DotConsoleLine.without_secrets(trimmed))
+		_append("] %s" % shown, GSConsoleBuffer.Level.ECHO)
+	buffer.remember(GSConsoleLine.without_secrets(trimmed))
 	submitted.emit(shown)
 
-	var last := DotResult.success("")
-	for statement in DotConsoleLine.split_statements(trimmed):
+	var last := GSResult.success("")
+	for statement in GSConsoleLine.split_statements(trimmed):
 		last = _run_one(statement)
 		buffer.append_result(last)
 	return last
@@ -165,10 +165,10 @@ func strip_chat_prefix(line: String) -> String:
 	return line
 
 
-func _run_one(statement: String) -> DotResult:
-	var parts := DotConsoleLine.split_line(statement)
+func _run_one(statement: String) -> GSResult:
+	var parts := GSConsoleLine.split_line(statement)
 	if parts.is_empty():
-		return DotResult.success("")
+		return GSResult.success("")
 	var name := parts[0].to_lower()
 
 	for s in _sources:
@@ -179,9 +179,9 @@ func _run_one(statement: String) -> DotResult:
 	# is the single most common thing that happens in a console.
 	var near := _suggest(name)
 	if near.is_empty():
-		return DotResult.fail(DotError.CODE_INVALID, "unknown command '%s'" % name)
-	return DotResult.fail(
-		DotError.CODE_INVALID, "unknown command '%s'" % name, "did you mean: %s" % ", ".join(near)
+		return GSResult.fail(GSError.CODE_INVALID, "unknown command '%s'" % name)
+	return GSResult.fail(
+		GSError.CODE_INVALID, "unknown command '%s'" % name, "did you mean: %s" % ", ".join(near)
 	)
 
 
@@ -264,7 +264,7 @@ static func _edit_distance(a: String, b: String, cap: int) -> int:
 ## Only the first word is completed. Completing an argument needs the source to know what
 ## the command's arguments mean, which dot-server's console does and a remote one cannot,
 ## so it is asked for rather than assumed: a source that has argument completion offers it
-## through its own [method DotConsoleSource.complete].
+## through its own [method GSConsoleSource.complete].
 func complete(partial: String, limit: int = 24) -> PackedStringArray:
 	var seen := {}
 	var out := PackedStringArray()
@@ -401,18 +401,18 @@ func _input(event: InputEvent) -> void:
 
 # --- Output -----------------------------------------------------------------
 
-func print_line(text: String, level: DotConsoleBuffer.Level = DotConsoleBuffer.Level.INFO) -> void:
+func print_line(text: String, level: GSConsoleBuffer.Level = GSConsoleBuffer.Level.INFO) -> void:
 	_append(text, level)
 
 
 func print_lines(
-	lines: PackedStringArray, level: DotConsoleBuffer.Level = DotConsoleBuffer.Level.INFO
+	lines: PackedStringArray, level: GSConsoleBuffer.Level = GSConsoleBuffer.Level.INFO
 ) -> void:
 	for l in lines:
 		_append(l, level)
 
 
-func _append(text: String, level: DotConsoleBuffer.Level) -> void:
+func _append(text: String, level: GSConsoleBuffer.Level) -> void:
 	buffer.append(text, level)
 	line_appended.emit(text, int(level))
 
@@ -420,12 +420,12 @@ func _append(text: String, level: DotConsoleBuffer.Level) -> void:
 func _attach_log_mirror() -> void:
 	if not _log_sink.is_valid():
 		_log_sink = _on_log_record
-		DotLog.add_sink(_log_sink)
+		GSLog.add_sink(_log_sink)
 
 
 func _detach_log_mirror() -> void:
 	if _log_sink.is_valid():
-		DotLog.remove_sink(_log_sink)
+		GSLog.remove_sink(_log_sink)
 		_log_sink = Callable()
 
 
@@ -433,22 +433,22 @@ func _on_log_record(record: Dictionary) -> void:
 	var level := int(record.get("level", 2))
 	if level < config.mirror_from:
 		return
-	# Mapped rather than shared: DotLog's levels and the buffer's are two enums that
+	# Mapped rather than shared: GSLog's levels and the buffer's are two enums that
 	# happen to line up today, and a console that colours an error as a trace because one
 	# of them gained a level is the kind of coupling that is free to avoid.
-	var mapped := DotConsoleBuffer.Level.INFO
+	var mapped := GSConsoleBuffer.Level.INFO
 	match level:
 		0:
-			mapped = DotConsoleBuffer.Level.TRACE
+			mapped = GSConsoleBuffer.Level.TRACE
 		1:
-			mapped = DotConsoleBuffer.Level.DEBUG
+			mapped = GSConsoleBuffer.Level.DEBUG
 		2:
-			mapped = DotConsoleBuffer.Level.INFO
+			mapped = GSConsoleBuffer.Level.INFO
 		3:
-			mapped = DotConsoleBuffer.Level.WARN
+			mapped = GSConsoleBuffer.Level.WARN
 		_:
-			mapped = DotConsoleBuffer.Level.ERROR
-	_append(DotLog.format_line(record), mapped)
+			mapped = GSConsoleBuffer.Level.ERROR
+	_append(GSLog.format_line(record), mapped)
 
 
 # --- Reporting --------------------------------------------------------------

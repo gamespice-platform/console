@@ -1,17 +1,17 @@
-class_name DotConsoleRemote
-extends DotConsoleSource
+class_name GSConsoleRemote
+extends GSConsoleSource
 
 ## A source that puts the line on a wire: RCON, a chat command, a module's own message.
 ##
 ## [codeblock]
-## var remote := DotConsoleRemote.new()
+## var remote := GSConsoleRemote.new()
 ## remote.send_fn = func(line: String) -> void: link.send_rcon(line)
 ## remote.prefix = "rcon"          # only `rcon <line>` goes this way
 ## console.add_source(remote)
 ## [/codeblock]
 ##
 ## [b]It is deliberately the least capable source.[/b] The answer comes back later, over a
-## socket, into a handler that calls [method DotConsoleController.print_line] — so
+## socket, into a handler that calls [method GSConsoleController.print_line] — so
 ## [method execute] returns "sent", not a result, and saying otherwise would be a lie the
 ## player reads as a command that did nothing.
 ##
@@ -49,16 +49,16 @@ func claims(name: String) -> bool:
 	return true
 
 
-func execute(line: String) -> DotResult:
+func execute(line: String) -> GSResult:
 	if not send_fn.is_valid():
-		return DotResult.fail(DotError.CODE_STATE, "nothing is connected to send this to")
+		return GSResult.fail(GSError.CODE_STATE, "nothing is connected to send this to")
 
 	var payload := line
 	if prefix != "":
-		var parts := DotConsoleLine.split_line(line)
+		var parts := GSConsoleLine.split_line(line)
 		if parts.size() < 2:
-			return DotResult.fail(
-				DotError.CODE_INVALID, "usage: %s <command>" % prefix
+			return GSResult.fail(
+				GSError.CODE_INVALID, "usage: %s <command>" % prefix
 			)
 		# Everything after the prefix's own word. Not `find(parts[1])`, which searched from
 		# the start: `rcon r` found the r inside `rcon` and sent `rcon r`, and a quoted first
@@ -72,7 +72,7 @@ func execute(line: String) -> DotResult:
 	send_fn.call(payload)
 	# No output. The answer arrives asynchronously and the game prints it; inventing a
 	# success line here would put "ok" above a command that is about to be refused.
-	return DotResult.success("")
+	return GSResult.success("")
 
 
 ## Teaches this source what the far end has, so Tab can offer something.

@@ -1,11 +1,11 @@
-class_name DotConsoleBridge
-extends DotConsoleSource
+class_name GSConsoleBridge
+extends GSConsoleSource
 
 ## Wraps anything that can already run a command line, without naming its class.
 ##
 ## [b]This is the file that stops GameSpice Console being a second command system.[/b]
 ## GameSpice Server's console has commands, cvars, permissions, aliases, config execution and
-## argument completion, and has had them for months. Naming `DotConsole` here would make
+## argument completion, and has had them for months. Naming `GSConsole` here would make
 ## GameSpice Server a hard dependency, which the family's rules forbid; re-implementing it would
 ## be two copies of one system, which is this family's most repeated bug.
 ##
@@ -15,8 +15,8 @@ extends DotConsoleSource
 ## at construction, and what is missing is simply not offered.
 ##
 ## [codeblock]
-## var server_console := DotRegistry.get_service(&"dot_server")
-## console.add_source(DotConsoleBridge.wrap(server_console.console))
+## var server_console := GSRegistry.get_service(&"dot_server")
+## console.add_source(GSConsoleBridge.wrap(server_console.console))
 ## [/codeblock]
 
 var _target: Object = null
@@ -28,7 +28,7 @@ var _cached_names: PackedStringArray = PackedStringArray()
 var _names_fresh := false
 
 
-static func wrap(target: Object, label: String = "") -> DotConsoleBridge:
+static func wrap(target: Object, label: String = "") -> GSConsoleBridge:
 	# Not this class's own name. A script that names itself in an expression, loaded after
 	# its base, cuts Godot 4.7.2's exit teardown short and leaks every script loaded before
 	# it. See docs/gdscript-hazards.md, "A script that names itself".
@@ -67,17 +67,17 @@ func claims(name: String) -> bool:
 	return names().has(name.to_lower())
 
 
-func execute(line: String) -> DotResult:
+func execute(line: String) -> GSResult:
 	if not valid():
-		return DotResult.fail(
-			DotError.CODE_STATE, "the console this was bridged to has gone away"
+		return GSResult.fail(
+			GSError.CODE_STATE, "the console this was bridged to has gone away"
 		)
 	var out: Variant = _target.call("execute", line)
-	if out is DotResult:
+	if out is GSResult:
 		return out
 	if out == null:
-		return DotResult.success("")
-	return DotResult.success(out)
+		return GSResult.success("")
+	return GSResult.success(out)
 
 
 func complete(partial: String, limit: int = 24) -> PackedStringArray:

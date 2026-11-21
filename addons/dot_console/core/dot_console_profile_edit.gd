@@ -1,7 +1,7 @@
-class_name DotConsoleProfileEdit
+class_name GSConsoleProfileEdit
 extends RefCounted
 
-## The `profile_edit` command: live edits to GameSpice Core's [DotProfileRuntime], from a console.
+## The `profile_edit` command: live edits to GameSpice Core's [GSProfileRuntime], from a console.
 ## Only builds the request; the server decides who may. Wire it with `register(local, link.submit)`
 ## and `print_replies(console, link)`.
 
@@ -9,14 +9,14 @@ const USAGE := "profile_edit set <kind> <id> <key> <value> | reset_key <kind> <i
 
 
 ## Adds `profile_edit` to [param local]. [param submit] is [code](req: Dictionary) ->
-## DotResult[/code], a [code]DotProfileRuntime.handle_request[/code] on a server or a
-## [code]DotNetProfileLink.submit[/code] on a client.
-static func register(local: DotConsoleLocal, submit: Callable, name: StringName = &"profile_edit") -> void:
+## GSResult[/code], a [code]GSProfileRuntime.handle_request[/code] on a server or a
+## [code]GSNetProfileLink.submit[/code] on a client.
+static func register(local: GSConsoleLocal, submit: Callable, name: StringName = &"profile_edit") -> void:
 	local.add_command(name, "Edit a profile live (admin): " + USAGE, func(args: PackedStringArray) -> Variant:
 		var req := parse(args)
 		if not req.ok:
 			return req
-		var res: DotResult = submit.call(req.value)
+		var res: GSResult = submit.call(req.value)
 		if not res.ok:
 			return res
 		return "sent" if typeof(res.value) == TYPE_BOOL else "ok")
@@ -31,13 +31,13 @@ static func print_replies(console: Object, link: Object) -> void:
 
 
 ## Arguments to a request, or CODE_INVALID with the usage.
-static func parse(args: PackedStringArray) -> DotResult:
+static func parse(args: PackedStringArray) -> GSResult:
 	var needs := {"set": 5, "reset_key": 4, "reset": 3, "save": 3}
 	if args.is_empty() or not needs.has(args[0]) or args.size() < needs[args[0]]:
-		return DotResult.fail(DotError.CODE_INVALID, "usage: " + USAGE)
+		return GSResult.fail(GSError.CODE_INVALID, "usage: " + USAGE)
 	var key := args[3] if args[0] == "set" or args[0] == "reset_key" else ""
 	var value: Variant = parse_value(" ".join(args.slice(4))) if args[0] == "set" else null
-	return DotResult.success(DotProfileRuntime.make_request(args[0], args[1], args[2], key, value))
+	return GSResult.success(GSProfileRuntime.make_request(args[0], args[1], args[2], key, value))
 
 
 ## `400` is an int, `2.5` a float, `true` a bool, `[..]`/`{..}` JSON, anything else the text.

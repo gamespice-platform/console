@@ -1,12 +1,12 @@
-class_name DotConsoleSource
+class_name GSConsoleSource
 extends RefCounted
 
 ## Something a console line can be sent to.
 ##
 ## [b]GameSpice Console is a console, not a command system.[/b] That is the whole architectural
 ## decision and it is worth being blunt about, because the obvious alternative is to build
-## a second command registry beside GameSpice Server's — and GameSpice Server already has `DotConsole`,
-## `DotConCommand`, `DotConVar`, permissions, aliases, config execution and completion,
+## a second command registry beside GameSpice Server's — and GameSpice Server already has `GSConsole`,
+## `GSConCommand`, `GSConVar`, permissions, aliases, config execution and completion,
 ## all of which have been shipping for months.
 ##
 ## Two copies of a command system is this family's most repeated bug wearing its most
@@ -15,13 +15,13 @@ extends RefCounted
 ##
 ## Three ship:
 ##
-## - [DotConsoleLocal] — a small registry for the commands that genuinely are the client's:
+## - [GSConsoleLocal] — a small registry for the commands that genuinely are the client's:
 ##   a volume, a key bind, a screenshot. A client must be able to do those with no server
 ##   in the process at all.
-## - [DotConsoleBridge] — wraps any object with [code]execute[/code] and
+## - [GSConsoleBridge] — wraps any object with [code]execute[/code] and
 ##   [code]complete[/code], which is GameSpice Server's console exactly, reached by duck typing
 ##   so this addon never names it.
-## - [DotConsoleRemote] — a [Callable] that puts the line on a wire, for RCON or for a
+## - [GSConsoleRemote] — a [Callable] that puts the line on a wire, for RCON or for a
 ##   chat command. It cannot complete and says so rather than pretending.
 ##
 ## The manager asks each source in order and the first one that claims the name handles it.
@@ -36,8 +36,8 @@ func claims(_name: String) -> bool:
 
 
 ## Runs one line. The line is already split into a name and arguments by the caller.
-func execute(_line: String) -> DotResult:
-	return DotResult.fail(DotError.CODE_UNSUPPORTED, "this source cannot execute")
+func execute(_line: String) -> GSResult:
+	return GSResult.fail(GSError.CODE_UNSUPPORTED, "this source cannot execute")
 
 
 ## Completions for a partial line. Empty is a legitimate answer.

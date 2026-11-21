@@ -15,24 +15,24 @@ Sources are asked in order, and the first that claims a name handles it. A local
 
 | Source | What it is for |
 | --- | --- |
-| `DotConsoleLocal` | Things that belong to the player's own machine: a volume, a bind, a screenshot, `quit`. Works with no server in the process. |
-| `DotConsoleBridge` | Wraps anything with `execute` and `complete` (duck typing), so a server's console becomes a source without this addon naming its types. |
-| `DotConsoleRemote` | A `send_fn` that puts the line on a wire, for RCON or a chat command. |
+| `GSConsoleLocal` | Things that belong to the player's own machine: a volume, a bind, a screenshot, `quit`. Works with no server in the process. |
+| `GSConsoleBridge` | Wraps anything with `execute` and `complete` (duck typing), so a server's console becomes a source without this addon naming its types. |
+| `GSConsoleRemote` | A `send_fn` that puts the line on a wire, for RCON or a chat command. |
 
 ## Quick start
 
 ```gdscript
-var console := DotConsoleController.new()
+var console := GSConsoleController.new()
 add_child(console)
 console.setup()
 
-var local := DotConsoleLocal.new()
+var local := GSConsoleLocal.new()
 local.add_command(&"quit", "Quit", func(_a): get_tree().quit())
 local.bind_setting(&"sensitivity", settings)      # duck-typed; one copy of the value
 console.add_source(local)
-console.add_source(DotConsoleBridge.wrap(server.console))   # when there is a server
+console.add_source(GSConsoleBridge.wrap(server.console))   # when there is a server
 
-var panel := DotConsolePanel.new()
+var panel := GSConsolePanel.new()
 panel.controller = console
 canvas_layer.add_child(panel)
 ```
@@ -40,7 +40,7 @@ canvas_layer.add_child(panel)
 Or do all of that in one call. It adds `help`, `clear`, `settings`, a command for every setting the settings manager's schema declares, the server's console when one runs in this process, and the panel on its own CanvasLayer. Given a menu (anything with `add_overlay`), the console registers as one of its overlays, so the game does the same things for the console as for the menu (stop the player, free the pointer).
 
 ```gdscript
-console = DotConsoleKit.build(self, settings_manager, menu)
+console = GSConsoleKit.build(self, settings_manager, menu)
 ```
 
 The one line every game with a console forgets:
@@ -58,13 +58,13 @@ See [docs/console-kit.md](docs/console-kit.md).
 | --- | --- |
 | The key is bound by physical position. | The key under Escape types `` ` `` on a UK keyboard, `^` on a German one and `²` on a French one. Binding a character makes the console unopenable across much of Europe. `open_physical_key` is a physical keycode, and `open_action` is checked first so a player can rebind it. |
 | The scrollback is a ring. | An unbounded buffer is a memory leak, and a server logging a line per tick would fill it. The size is `scrollback_lines`. |
-| Secrets are redacted. | A password typed into a console lands in scrollback, in history and in screenshots. `DotConsoleLine.redact` keeps the command name and replaces the rest with asterisks of a fixed length, because the length of a password is information too. |
-| The controller draws nothing. | `DotConsoleController` is a `Node` with no `Control`. `DotConsolePanel` draws it. That is what makes a headless suite possible. |
+| Secrets are redacted. | A password typed into a console lands in scrollback, in history and in screenshots. `GSConsoleLine.redact` keeps the command name and replaces the rest with asterisks of a fixed length, because the length of a password is information too. |
+| The controller draws nothing. | `GSConsoleController` is a `Node` with no `Control`. `GSConsolePanel` draws it. That is what makes a headless suite possible. |
 | The panel does not use GameSpice UI. | A console must work when the interface does not. Half its use is finding out why a screen stack is stuck. |
 
 ## Settings
 
-Defaults are in `cfg/addon/dot_console/console.yml`. A game overrides them in `cfg/game/<game>/dot_console/`, and the server operator in `cfg/server/addon/dot_console/` or `cfg/server/game/<game>/dot_console/` (strongest). `DotConsoleConfig.new().load_cfg()` reads these, then `DOT_CONSOLE_*` environment variables and `--console-*` flags.
+Defaults are in `cfg/addon/dot_console/console.yml`. A game overrides them in `cfg/game/<game>/dot_console/`, and the server operator in `cfg/server/addon/dot_console/` or `cfg/server/game/<game>/dot_console/` (strongest). `GSConsoleConfig.new().load_cfg()` reads these, then `DOT_CONSOLE_*` environment variables and `--console-*` flags.
 
 | Setting | Default | What it does |
 | --- | --- | --- |

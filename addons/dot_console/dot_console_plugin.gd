@@ -10,12 +10,12 @@ const _ICON := "res://addons/dot_console/icon_placeholder.svg"
 
 const _TYPES := [
 	[
-		"DotConsoleController",
+		"GSConsoleController",
 		"Node",
 		"res://addons/dot_console/runtime/dot_console_controller.gd",
 	],
 	[
-		"DotConsolePanel",
+		"GSConsolePanel",
 		"Control",
 		"res://addons/dot_console/runtime/dot_console_panel.gd",
 	],

@@ -22,7 +22,7 @@ var _section_count := 0
 
 
 func _ready() -> void:
-	DotLog.set_level(DotLog.Level.ERROR)
+	GSLog.set_level(GSLog.Level.ERROR)
 	# Awaited. An un-awaited call to a coroutine returns at its first `await` and the
 	# caller carries straight on -- which is how GameSpice NPC's leak check ended up scheduled
 	# to finish after get_tree().quit() and never reported.
@@ -68,28 +68,28 @@ func _run() -> void:
 func _test_splitting() -> void:
 	_section("Splitting a line, which is where quotes live")
 
-	var simple := DotConsoleLine.split_line("map dm_atrium")
+	var simple := GSConsoleLine.split_line("map dm_atrium")
 	_check(simple.size() == 2 and simple[0] == "map", "a plain line splits")
 
-	var quoted := DotConsoleLine.split_line('say "hello there, world"')
+	var quoted := GSConsoleLine.split_line('say "hello there, world"')
 	_check(quoted.size() == 2, "a quoted argument is one argument")
 	_check(quoted[1] == "hello there, world", "with its spaces intact")
 
-	var empty := DotConsoleLine.split_line('bind f ""')
+	var empty := GSConsoleLine.split_line('bind f ""')
 	_check(
 		empty.size() == 3 and empty[2] == "",
 		"an empty pair of quotes is a real, empty argument -- which is how a bind is cleared"
 	)
 
-	var spaced := DotConsoleLine.split_line("   map     dm_atrium   ")
+	var spaced := GSConsoleLine.split_line("   map     dm_atrium   ")
 	_check(spaced.size() == 2, "runs of whitespace collapse")
-	_check(DotConsoleLine.split_line("").is_empty(), "and an empty line is no arguments")
+	_check(GSConsoleLine.split_line("").is_empty(), "and an empty line is no arguments")
 
-	var statements := DotConsoleLine.split_statements("map dm_atrium; say hello")
+	var statements := GSConsoleLine.split_statements("map dm_atrium; say hello")
 	_check(statements.size() == 2, "a line splits into statements on semicolons")
 
 	# The one that matters: a semicolon inside quotes belongs to the argument.
-	var bound := DotConsoleLine.split_statements('bind f "say hi; say bye"')
+	var bound := GSConsoleLine.split_statements('bind f "say hi; say bye"')
 	_check(
 		bound.size() == 1,
 		"and a semicolon inside quotes does not, because that is one bind with two commands in it"
@@ -102,16 +102,16 @@ func _test_redaction() -> void:
 	_section("A console that echoes a password has published it")
 
 	_check(
-		DotConsoleLine.is_secret("rcon_password hunter2"),
+		GSConsoleLine.is_secret("rcon_password hunter2"),
 		"a command that carries a credential is known to carry one"
 	)
 	_check(
-		not DotConsoleLine.is_secret("rcon_password"),
+		not GSConsoleLine.is_secret("rcon_password"),
 		"while asking for its value is not, because there is nothing to hide yet"
 	)
-	_check(not DotConsoleLine.is_secret("say hunter2"), "and an ordinary line is not secret")
+	_check(not GSConsoleLine.is_secret("say hunter2"), "and an ordinary line is not secret")
 
-	var shown := DotConsoleLine.redact("rcon_password hunter2")
+	var shown := GSConsoleLine.redact("rcon_password hunter2")
 	_check(not shown.contains("hunter2"), "the secret does not survive redaction")
 	_check(shown.begins_with("rcon_password"), "and the command name does, so it can be recognised")
 	_check(
@@ -120,22 +120,22 @@ func _test_redaction() -> void:
 	)
 
 	# Matched on the first word only, these two went through whole.
-	var chained := DotConsoleLine.redact("say hi; rcon_password hunter2")
+	var chained := GSConsoleLine.redact("say hi; rcon_password hunter2")
 	_check(
 		chained == "say hi; rcon_password ********",
 		"a secret in a later statement is hidden too (%s)" % chained
 	)
-	var forwarded := DotConsoleLine.redact("rcon rcon_password hunter2")
+	var forwarded := GSConsoleLine.redact("rcon rcon_password hunter2")
 	_check(
 		forwarded == "rcon rcon_password ********",
 		"and one behind a remote source's prefix (%s)" % forwarded
 	)
 	_check(
-		DotConsoleLine.without_secrets("say hi; rcon_password hunter2") == "say hi; rcon_password",
+		GSConsoleLine.without_secrets("say hi; rcon_password hunter2") == "say hi; rcon_password",
 		"the history keeps the commands and never the value"
 	)
-	_check(DotConsoleLine.redact("say hi") == "say hi", "and a line with nothing secret is untouched")
-	_check(DotConsoleLine.redact("say my password is wrong") == "say my password is wrong",
+	_check(GSConsoleLine.redact("say hi") == "say hi", "and a line with nothing secret is untouched")
+	_check(GSConsoleLine.redact("say my password is wrong") == "say my password is wrong",
 		"nor chat that merely mentions a password")
 
 
@@ -144,7 +144,7 @@ func _test_redaction() -> void:
 func _test_buffer() -> void:
 	_section("The scrollback is a ring, because an unbounded one is a leak")
 
-	var b := DotConsoleBuffer.new(8, 4)
+	var b := GSConsoleBuffer.new(8, 4)
 	for i in range(20):
 		b.append("line %d" % i)
 	_check(b.line_count() == 8, "it stops at exactly the capacity it was asked for")
@@ -173,29 +173,29 @@ func _test_buffer() -> void:
 	b.capacity = 8
 
 	b.clear()
-	b.append("an error", DotConsoleBuffer.Level.ERROR)
-	b.append("a note", DotConsoleBuffer.Level.INFO)
-	b.append("noise", DotConsoleBuffer.Level.TRACE)
+	b.append("an error", GSConsoleBuffer.Level.ERROR)
+	b.append("a note", GSConsoleBuffer.Level.INFO)
+	b.append("noise", GSConsoleBuffer.Level.TRACE)
 	_check(b.tail(10).size() == 3, "everything is there")
 	_check(
-		b.tail(10, DotConsoleBuffer.Level.WARN).size() == 1,
+		b.tail(10, GSConsoleBuffer.Level.WARN).size() == 1,
 		"and a level filter draws only what was asked for"
 	)
-	_check(b.tail(10, DotConsoleBuffer.Level.TRACE, "note").size() == 1, "as does a search")
+	_check(b.tail(10, GSConsoleBuffer.Level.TRACE, "note").size() == 1, "as does a search")
 
 	b.clear()
 	b.append("one\ntwo\nthree")
 	_check(b.line_count() == 3, "a multi-line append is multiple lines, so the ring counts right")
 
 	b.clear()
-	b.append_result(DotResult.fail(DotError.CODE_INVALID, "no such thing", "try another"))
+	b.append_result(GSResult.fail(GSError.CODE_INVALID, "no such thing", "try another"))
 	_check(b.line_count() == 2, "a failure prints its message and its detail")
-	_check(int(b.tail(1)[0]["level"]) == int(DotConsoleBuffer.Level.ERROR), "at error level")
+	_check(int(b.tail(1)[0]["level"]) == int(GSConsoleBuffer.Level.ERROR), "at error level")
 
 	b.clear()
-	b.append_result(DotResult.success(null))
+	b.append_result(GSResult.success(null))
 	_check(b.line_count() == 0, "a success with nothing to say says nothing")
-	b.append_result(DotResult.success(PackedStringArray(["a", "b"])))
+	b.append_result(GSResult.success(PackedStringArray(["a", "b"])))
 	_check(b.line_count() == 2, "and one with lines prints them all")
 
 
@@ -204,7 +204,7 @@ func _test_buffer() -> void:
 func _test_history() -> void:
 	_section("History, and the draft it has to give back")
 
-	var b := DotConsoleBuffer.new(64, 4)
+	var b := GSConsoleBuffer.new(64, 4)
 	b.remember("first")
 	b.remember("second")
 	b.remember("second")
@@ -218,7 +218,7 @@ func _test_history() -> void:
 		b.remember("cmd %d" % i)
 	_check(b.history().size() == 4, "and the history is bounded like the scrollback")
 
-	var b2 := DotConsoleBuffer.new(64, 8)
+	var b2 := GSConsoleBuffer.new(64, 8)
 	b2.remember("alpha")
 	b2.remember("beta")
 	_check(b2.previous("half typed") == "beta", "Up gives the last line")
@@ -230,7 +230,7 @@ func _test_history() -> void:
 	)
 	_check(b2.next() == "half typed" or true, "twice is harmless")
 
-	var b3 := DotConsoleBuffer.new(64, 8)
+	var b3 := GSConsoleBuffer.new(64, 8)
 	_check(b3.previous("draft") == "draft", "an empty history gives back the draft unchanged")
 
 
@@ -240,13 +240,13 @@ func _test_local_source() -> void:
 	_section("The client's own commands")
 
 	var ran := []
-	var local := DotConsoleLocal.new()
+	var local := GSConsoleLocal.new()
 	local.add_command(&"screenshot", "Save a screenshot", func(args: PackedStringArray) -> Variant:
 		ran.append(args)
 		return null
 	)
 	local.add_command(&"fail", "Always fails", func(_a: PackedStringArray) -> Variant:
-		return DotResult.fail(DotError.CODE_STATE, "nope")
+		return GSResult.fail(GSError.CODE_STATE, "nope")
 	)
 
 	_check(local.claims("screenshot"), "it claims what it has")
@@ -295,15 +295,15 @@ func _test_local_source() -> void:
 func _test_precedence_and_completion() -> void:
 	_section("Precedence, and Tab")
 
-	var local := DotConsoleLocal.new()
+	var local := GSConsoleLocal.new()
 	local.add_command(&"quit", "Quit the client", func(_a: PackedStringArray) -> Variant: return "client quit")
 	local.add_command(&"connect", "Connect", func(_a: PackedStringArray) -> Variant: return null)
 
 	var remote_lines := []
-	var remote := DotConsoleRemote.new("server")
+	var remote := GSConsoleRemote.new("server")
 	remote.send_fn = func(line: String) -> void: remote_lines.append(line)
 
-	var c := DotConsoleController.new()
+	var c := GSConsoleController.new()
 	c.register_as_service = false
 	add_child(c)
 	c.setup()
@@ -326,7 +326,7 @@ func _test_precedence_and_completion() -> void:
 
 	# Through a prefixed source, the payload is everything after the prefix's own word.
 	var prefixed_lines := []
-	var prefixed := DotConsoleRemote.new("rcon")
+	var prefixed := GSConsoleRemote.new("rcon")
 	prefixed.prefix = "rcon"
 	prefixed.send_fn = func(line: String) -> void: prefixed_lines.append(line)
 	var _r := prefixed.execute("rcon r")
@@ -352,7 +352,7 @@ func _test_precedence_and_completion() -> void:
 
 	# A remote source that cannot complete must answer nothing rather than asking a
 	# server on every keystroke.
-	var mute := DotConsoleRemote.new()
+	var mute := GSConsoleRemote.new()
 	mute.send_fn = func(_l: String) -> void: pass
 	_check(mute.complete("any").is_empty(), "a remote source with no learned names offers nothing")
 
@@ -360,7 +360,7 @@ func _test_precedence_and_completion() -> void:
 	# answers with WHOLE LINES, because the box is replaced with whatever is picked -- a
 	# candidate that was only the argument would delete the command word with it.
 	var arg_source := ArgSource.new()
-	var c2 := DotConsoleController.new()
+	var c2 := GSConsoleController.new()
 	add_child(c2)
 	c2.add_source(arg_source)
 
@@ -380,10 +380,10 @@ func _test_precedence_and_completion() -> void:
 
 
 ## A source that completes arguments, for the half of completion that used to have
-## nowhere to arrive. Bare [DotConsoleSource] rather than a real console: what is being
+## nowhere to arrive. Bare [GSConsoleSource] rather than a real console: what is being
 ## asserted is the contract, not anybody's implementation of it.
 class ArgSource:
-	extends DotConsoleSource
+	extends GSConsoleSource
 
 	func names() -> PackedStringArray:
 		return PackedStringArray(["kick"])
@@ -391,8 +391,8 @@ class ArgSource:
 	func claims(name: String) -> bool:
 		return name.to_lower().begins_with("kick")
 
-	func execute(_line: String) -> DotResult:
-		return DotResult.success("")
+	func execute(_line: String) -> GSResult:
+		return GSResult.success("")
 
 	func complete(partial: String, _limit: int = 24) -> PackedStringArray:
 		var words := partial.split(" ", false)
@@ -415,17 +415,17 @@ class ArgSource:
 func _test_controller() -> void:
 	_section("The controller a game holds")
 
-	var local := DotConsoleLocal.new()
+	var local := GSConsoleLocal.new()
 	var says := []
 	local.add_command(&"say", "Say something", func(a: PackedStringArray) -> Variant:
 		says.append(" ".join(a))
 		return null
 	)
 	local.add_command(&"boom", "Fails", func(_a: PackedStringArray) -> Variant:
-		return DotResult.fail(DotError.CODE_STATE, "it broke")
+		return GSResult.fail(GSError.CODE_STATE, "it broke")
 	)
 
-	var c := DotConsoleController.new()
+	var c := GSConsoleController.new()
 	c.register_as_service = false
 	add_child(c)
 	c.setup()
@@ -522,14 +522,14 @@ func _test_controller() -> void:
 	# is eight calls and eight signal emissions.
 	var appended := []
 	c.line_appended.connect(func(t: String, _lvl: int) -> void: appended.append(t))
-	c.print_lines(PackedStringArray(["alpha", "beta", "gamma"]), DotConsoleBuffer.Level.WARN)
+	c.print_lines(PackedStringArray(["alpha", "beta", "gamma"]), GSConsoleBuffer.Level.WARN)
 	_check(appended.size() == 3, "a block of lines is appended as three lines, not one")
 	_check(
 		c.buffer.to_text().contains("beta"),
 		"and reaches the scrollback rather than only the signal"
 	)
 	_check(
-		int(c.buffer.tail(1)[0]["level"]) == int(DotConsoleBuffer.Level.WARN),
+		int(c.buffer.tail(1)[0]["level"]) == int(GSConsoleBuffer.Level.WARN),
 		"at the level it was given, because a warning printed as info is a warning nobody sees"
 	)
 	c.print_lines(PackedStringArray([]))
@@ -567,13 +567,13 @@ func _test_controller() -> void:
 func _test_panel_is_not_zero_sized() -> void:
 	_section("The one thing an assertion can reach about a Control")
 
-	var c := DotConsoleController.new()
+	var c := GSConsoleController.new()
 	c.register_as_service = false
 	add_child(c)
 	c.setup()
-	c.add_source(DotConsoleLocal.new())
+	c.add_source(GSConsoleLocal.new())
 
-	var panel := DotConsolePanel.new()
+	var panel := GSConsolePanel.new()
 	panel.controller = c
 	add_child(panel)
 	await get_tree().process_frame
@@ -608,7 +608,7 @@ func _test_panel_is_not_zero_sized() -> void:
 
 # --- 9 ----------------------------------------------------------------------
 
-## DotConsoleKit: a setting is a command, and the menu hears the console open and close.
+## GSConsoleKit: a setting is a command, and the menu hears the console open and close.
 func _test_kit() -> void:
 	_section("The kit: every setting a command, and the console one of the menu's overlays")
 
@@ -617,8 +617,8 @@ func _test_kit() -> void:
 	var settings := KitSettings.new()
 	var menu := KitMenu.new()
 	var self_mute := KitSelfMute.new()
-	DotRegistry.register(&"dot_self_mute", self_mute)
-	var c := DotConsoleKit.build(host, settings, menu)
+	GSRegistry.register(&"dot_self_mute", self_mute)
+	var c := GSConsoleKit.build(host, settings, menu)
 	await get_tree().process_frame
 
 	var names := c.all_names()
@@ -628,8 +628,8 @@ func _test_kit() -> void:
 	_check(int(settings.stored.get(&"net_stat", 0)) == 2, "and typing it sets it (%s)" % [settings.stored])
 	_check(c.help_for("net_stat") == "The connection overlay.", "with the setting's own description as its help")
 
-	_check(menu.overlays.size() == 1 and menu.overlays[0] is DotConsolePanel, "the panel is registered as a menu overlay")
-	var panel := menu.overlays[0] as DotConsolePanel
+	_check(menu.overlays.size() == 1 and menu.overlays[0] is GSConsolePanel, "the panel is registered as a menu overlay")
+	var panel := menu.overlays[0] as GSConsolePanel
 	c.open()
 	_check(menu.opened == 1 and panel.is_open(), "opening it tells the menu, so the game stops walking and frees the pointer")
 	var closed := [0]
@@ -637,7 +637,7 @@ func _test_kit() -> void:
 	panel.close()
 	_check(closed[0] == 1 and not c.is_open(), "and closing it through the menu's close() says so")
 
-	# `sm`: the player's own block list (GameSpice Chat's DotChatSelfMute, found by registry name;
+	# `sm`: the player's own block list (GameSpice Chat's GSChatSelfMute, found by registry name;
 	# a stand-in here, because GameSpice Console does not link GameSpice Chat).
 	_check(names.has("sm"), "sm is a client command when a block list is registered")
 	c.submit("sm")
@@ -647,7 +647,7 @@ func _test_kit() -> void:
 
 	host.queue_free()
 	await get_tree().process_frame
-	DotRegistry.unregister_instance(&"dot_self_mute", self_mute)
+	GSRegistry.unregister_instance(&"dot_self_mute", self_mute)
 
 
 class KitSelfMute extends RefCounted:
@@ -704,17 +704,17 @@ func _test_profile_edit() -> void:
 	var f := FileAccess.open(base + "/addons/dot-npc/npc/zombie.yml", FileAccess.WRITE)
 	f.store_string("health: 50\n")
 	f.close()
-	var set := DotProfileSet.create("dot-npc", "mygame", "npc", [
-		DotProfileSet.field("health", "int", 100, {"min": 1, "max": 1000}),
+	var set := GSProfileSet.create("dot-npc", "mygame", "npc", [
+		GSProfileSet.field("health", "int", 100, {"min": 1, "max": 1000}),
 	])
 	set.roots = PackedStringArray([base])
-	var rt := DotProfileRuntime.new()
+	var rt := GSProfileRuntime.new()
 	rt.add_set(set)
 	rt.save_root = base
 	var who := ["admin"]
 	rt.permit = func(actor: Variant, _flag: String) -> bool: return actor == "admin"
-	var local := DotConsoleLocal.new()
-	DotConsoleProfileEdit.register(local, func(req: Dictionary) -> DotResult:
+	var local := GSConsoleLocal.new()
+	GSConsoleProfileEdit.register(local, func(req: Dictionary) -> GSResult:
 		return rt.handle_request(who[0], req))
 
 	_check(local.claims("profile_edit"), "the command is registered")
@@ -725,18 +725,18 @@ func _test_profile_edit() -> void:
 
 	who[0] = "player"
 	var denied := local.execute("profile_edit set npc zombie health 5")
-	_check(not denied.ok and denied.error.code == DotError.CODE_FORBIDDEN, "a non-admin is refused by the server's check")
+	_check(not denied.ok and denied.error.code == GSError.CODE_FORBIDDEN, "a non-admin is refused by the server's check")
 	who[0] = "admin"
 
 	_check(not local.execute("profile_edit set npc zombie").ok, "a short line returns the usage")
 	_check(not local.execute("profile_edit explode npc zombie").ok, "an unknown op returns the usage")
 	var bad := local.execute("profile_edit set npc zombie health 99999")
-	_check(not bad.ok and bad.error.code == DotError.CODE_INVALID, "an out-of-range value is a DotResult error")
+	_check(not bad.ok and bad.error.code == GSError.CODE_INVALID, "an out-of-range value is a GSResult error")
 	var saved := local.execute("profile_edit save npc zombie")
 	_check(saved.ok, "save runs for an admin: " + ("" if saved.ok else saved.error.message))
 	_check(local.execute("profile_edit reset_key npc zombie health").ok, "reset_key runs")
-	_check(DotConsoleProfileEdit.parse_value("2.5") == 2.5 and DotConsoleProfileEdit.parse_value("true") == true, "values are typed by their look")
-	_check(DotConsoleProfileEdit.parse_value("[1,2]") is Array and DotConsoleProfileEdit.parse_value("hi") == "hi", "JSON lists and plain text")
+	_check(GSConsoleProfileEdit.parse_value("2.5") == 2.5 and GSConsoleProfileEdit.parse_value("true") == true, "values are typed by their look")
+	_check(GSConsoleProfileEdit.parse_value("[1,2]") is Array and GSConsoleProfileEdit.parse_value("hi") == "hi", "JSON lists and plain text")
 
 
 # --- Harness ---------------------------------------------------------------

@@ -6,7 +6,7 @@ The first run of the suite failed three times, and two were traps already in the
 
 - **A GDScript lambda captures locals by value**, so a test whose setter assigned to a captured `float` reported a failure for a setter that ran perfectly. The fixture captures an `Array`, the prescribed shape ([gdscript-hazards.md](../../../docs/gdscript-hazards.md)).
 - **`_reset_cursor()` cleared the draft before it was returned**, so walking down off the end of the history gave back "" instead of the half-typed line. It read as a focus bug rather than an ordering one.
-- **A silently raised capacity**: `DotConsoleBuffer.new(8)` gave sixteen lines.
+- **A silently raised capacity**: `GSConsoleBuffer.new(8)` gave sixteen lines.
 
 Typing at a real console later found the prefix-only suggester empty for `mastervolume`.
 

@@ -8,7 +8,7 @@ extends RefCounted
 ## swept by the headless runner, and a scene with no self-test in it hangs.
 ##
 ## It has `get_value` and `set_value` and nothing else, which is exactly the surface
-## `DotConsoleLocal.bind_setting` duck-types against.
+## `GSConsoleLocal.bind_setting` duck-types against.
 
 var stored: Dictionary = {}
 
