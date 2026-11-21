@@ -18,7 +18,7 @@ extends Node
 ## console.submit("volume 0.4")
 ## [/codeblock]
 
-const SERVICE := &"dot_console"
+const SERVICE := &"gs_console"
 # No `const CHANNEL`. This mirrors GSLog into its own scrollback (`_on_log_record`), so a
 # record from here would be drawn back into the console that wrote it; what it does is
 # shown to the person typing, and each source logs the commands it runs.
@@ -262,7 +262,7 @@ static func _edit_distance(a: String, b: String, cap: int) -> int:
 ## Completions for what is in the input box.
 ##
 ## Only the first word is completed. Completing an argument needs the source to know what
-## the command's arguments mean, which dot-server's console does and a remote one cannot,
+## the command's arguments mean, which gs-server's console does and a remote one cannot,
 ## so it is asked for rather than assumed: a source that has argument completion offers it
 ## through its own [method GSConsoleSource.complete].
 func complete(partial: String, limit: int = 24) -> PackedStringArray:
@@ -468,7 +468,7 @@ func describe() -> Dictionary:
 
 func describe_lines() -> PackedStringArray:
 	var out := PackedStringArray()
-	out.append("dot-console  %s" % ("open" if _open else "closed"))
+	out.append("gs-console  %s" % ("open" if _open else "closed"))
 	out.append("  enabled  %s" % enabled)
 	for s in _sources:
 		out.append("  source   %-12s %d names" % [s.source_name(), s.names().size()])

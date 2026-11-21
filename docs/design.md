@@ -4,7 +4,7 @@
 
 GameSpice Server has `GSConsole`, `GSConCommand`, `GSConVar`, permissions, aliases, `exec`, completion and about nine hundred lines of built-in commands. Writing that again for the client would be two copies of one system, this family's most repeated bug. (The names also collide: `class_name` is global and `GSConsole` was taken.)
 
-So the split is: **dot-server's console is the machine that decides; dot-console is the person typing.** One has permissions and no screen; the other has a key, a caret and no authority. `GSConsoleBridge` joins them by duck typing (`execute`, `complete`, `command_names`, `cvar_names`) so neither names the other. `GSConsoleLocal` is about ninety lines, for the client's own handful.
+So the split is: **gs-server's console is the machine that decides; gs-console is the person typing.** One has permissions and no screen; the other has a key, a caret and no authority. `GSConsoleBridge` joins them by duck typing (`execute`, `complete`, `command_names`, `cvar_names`) so neither names the other. `GSConsoleLocal` is about ninety lines, for the client's own handful.
 
 ## Three things that are easy to get wrong
 
@@ -28,7 +28,7 @@ So the split is: **dot-server's console is the machine that decides; dot-console
 
 ## Argument completion
 
-The panel asks the sources once the input contains a space; a source with nothing to say answers with nothing and the box is left alone. dot-server's console (players, games) and dot-log (its subcommands and level names) answer. A remote source cannot, and offering command names in an argument position is worse than nothing.
+The panel asks the sources once the input contains a space; a source with nothing to say answers with nothing and the box is left alone. gs-server's console (players, games) and gs-log (its subcommands and level names) answer. A remote source cannot, and offering command names in an argument position is worse than nothing.
 
 - **`lstrip`, never `strip_edges`.** A trailing space is the difference between completing the command already typed and completing its first argument; `strip_edges()` makes `kick ` complete to `kick` for ever.
 - **Candidates are whole lines**, because `_complete()` replaces the input box with the one it picked; an argument-only candidate would take the command word with it. The hint line strips the words every candidate agrees on, so three players read `Alice  Amber  Bob`.

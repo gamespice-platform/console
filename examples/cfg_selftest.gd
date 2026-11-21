@@ -3,9 +3,9 @@ extends Node
 ## The yml layout of GameSpice Console's settings: the new path, the flat shim and the operator's layer.
 ## Run: `timeout 120 godot --headless --path . res://examples/cfg_selftest.tscn`.
 
-const FOLDER := "dot_console"
+const FOLDER := "gs_console"
 const FILE := "console.yml"
-const LEGACY := "user://dot_console_cfg_selftest_legacy"
+const LEGACY := "user://gs_console_cfg_selftest_legacy"
 
 const SECTIONS := 1
 const CHECKS := 11
@@ -21,7 +21,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	print("dot-console cfg self-test")
+	print("gs-console cfg self-test")
 	var addon_dir := "user://cfg/addons/" + FOLDER
 	var server_dir := "user://cfg/server/addons/" + FOLDER
 	_clean(addon_dir, server_dir)
@@ -70,7 +70,7 @@ func _run() -> void:
 	_write("user://cfg/server/" + FOLDER + "/" + FILE, "scrollback_lines: 4000\n")
 	config = GSConsoleConfig.new()
 	res = config.load_cfg(FILE, LEGACY)
-	_check(res.ok and config.scrollback_lines == 4000, "the old cfg/server/dot_console/ still loads")
+	_check(res.ok and config.scrollback_lines == 4000, "the old cfg/server/gs_console/ still loads")
 	_check(GSCfgLegacy.warned_count() == 1, "and warns once")
 	GSPaths.remove_tree("user://cfg/server/" + FOLDER)
 

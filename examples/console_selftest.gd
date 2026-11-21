@@ -1,6 +1,6 @@
 extends Node
 
-## Exercises dot-console with no window, and then with one.
+## Exercises gs-console with no window, and then with one.
 ##
 ## The controller half is testable headless because it has no [Control] in it, which is
 ## the reason the split exists. The panel half is checked for the one thing an assertion
@@ -30,7 +30,7 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	_line("dot-console self-test")
+	_line("gs-console self-test")
 	_line("")
 
 	_test_splitting()
@@ -617,7 +617,7 @@ func _test_kit() -> void:
 	var settings := KitSettings.new()
 	var menu := KitMenu.new()
 	var self_mute := KitSelfMute.new()
-	GSRegistry.register(&"dot_self_mute", self_mute)
+	GSRegistry.register(&"gs_self_mute", self_mute)
 	var c := GSConsoleKit.build(host, settings, menu)
 	await get_tree().process_frame
 
@@ -647,7 +647,7 @@ func _test_kit() -> void:
 
 	host.queue_free()
 	await get_tree().process_frame
-	GSRegistry.unregister_instance(&"dot_self_mute", self_mute)
+	GSRegistry.unregister_instance(&"gs_self_mute", self_mute)
 
 
 class KitSelfMute extends RefCounted:
@@ -700,11 +700,11 @@ func _test_profile_edit() -> void:
 	_section("profile_edit builds a request and hands it to whoever decides")
 
 	var base := "user://console_profile_edit"
-	DirAccess.make_dir_recursive_absolute(base + "/addons/dot-npc/npc")
-	var f := FileAccess.open(base + "/addons/dot-npc/npc/zombie.yml", FileAccess.WRITE)
+	DirAccess.make_dir_recursive_absolute(base + "/addons/gs-npc/npc")
+	var f := FileAccess.open(base + "/addons/gs-npc/npc/zombie.yml", FileAccess.WRITE)
 	f.store_string("health: 50\n")
 	f.close()
-	var set := GSProfileSet.create("dot-npc", "mygame", "npc", [
+	var set := GSProfileSet.create("gs-npc", "mygame", "npc", [
 		GSProfileSet.field("health", "int", 100, {"min": 1, "max": 1000}),
 	])
 	set.roots = PackedStringArray([base])

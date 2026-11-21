@@ -1,13 +1,13 @@
 # GameSpice Console
 
-The player's console: a key, a line, a history, and a bridge to whatever can run it. **dot-server's console is the machine that decides; dot-console is the person typing**: it has a key and a caret and no authority, and it is not a second command system.
+The player's console: a key, a line, a history, and a bridge to whatever can run it. **gs-server's console is the machine that decides; gs-console is the person typing**: it has a key and a caret and no authority, and it is not a second command system.
 
-**The distributable is `addons/dot_console/`.** It requires [GameSpice Core](../dot-core) API level 16 or later and nothing else: not dot-server, which it bridges to by duck typing, and not dot-ui.
+**The distributable is `addons/gs_console/`.** It requires [GameSpice Core](../gs-core) API level 16 or later and nothing else: not gs-server, which it bridges to by duck typing, and not gs-ui.
 
-Also requires **GameSpice Profile** (`GSProfileSet`, `GSProfile`, `GSProfileRuntime`, split from GameSpice Core): link `addons/dot_profile` next to `addons/dot_core`.
+Also requires **GameSpice Profile** (`GSProfileSet`, `GSProfile`, `GSProfileRuntime`, split from GameSpice Core): link `addons/gs_profile` next to `addons/gs_core`.
 
 ```bash
-ln -s ../../dot-core/addons/dot_core addons/dot_core
+ln -s ../../gs-core/addons/gs_core addons/gs_core
 ```
 
 Read the family [CLAUDE.md](../../CLAUDE.md) first.

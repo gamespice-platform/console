@@ -50,7 +50,7 @@ static func build(
 
 	# Unprefixed and last, so it catches what this client did not claim -- the family's
 	# default (see GSConsoleRemote's note on prefixes for when that is wrong).
-	var server: Object = GSRegistry.get_service(&"dot_server")
+	var server: Object = GSRegistry.get_service(&"gs_server")
 	if server != null and server.get("console") != null:
 		console.add_source(GSConsoleBridge.wrap(server.get("console"), "server"))
 
@@ -76,8 +76,8 @@ static func build(
 
 ## The registry name and the script of the player's own block list (GameSpice Chat's
 ## `GSChatSelfMute`), reached by name and path so this addon keeps its one dependency.
-const SELF_MUTE_SERVICE := &"dot_self_mute"
-const SELF_MUTE_SCRIPT := "res://addons/dot_chat/runtime/dot_chat_self_mute.gd"
+const SELF_MUTE_SERVICE := &"gs_self_mute"
+const SELF_MUTE_SCRIPT := "res://addons/gs_chat/runtime/gs_chat_self_mute.gd"
 
 
 ## `sm`, the player's own block list: `sm` lists who is here, `sm <number|name|#userid>`

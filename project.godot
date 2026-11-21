@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="dot-console"
+config/name="gs-console"
 config/description="The player's console: a key, a line, a history, completion, local cvars, and a bridge to whatever remote console the game has."
 run/main_scene="res://examples/console_selftest.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
@@ -23,7 +23,7 @@ window/size/viewport_height=900
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/dot_console/plugin.cfg")
+enabled=PackedStringArray("res://addons/gs_console/plugin.cfg")
 
 [importer_defaults]
 

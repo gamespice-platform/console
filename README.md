@@ -6,8 +6,8 @@ GameSpice Console is a console, not a command system. GameSpice Server already h
 
 ## Install
 
-1. Copy `addons/dot_console/` and `addons/dot_core/` into your project.
-2. Enable dot-console in *Project > Project Settings > Plugins*.
+1. Copy `addons/gs_console/` and `addons/gs_core/` into your project.
+2. Enable gs-console in *Project > Project Settings > Plugins*.
 
 ## Sources
 
@@ -64,11 +64,11 @@ See [docs/console-kit.md](docs/console-kit.md).
 
 ## Settings
 
-Defaults are in `cfg/addon/dot_console/console.yml`. A game overrides them in `cfg/game/<game>/dot_console/`, and the server operator in `cfg/server/addon/dot_console/` or `cfg/server/game/<game>/dot_console/` (strongest). `GSConsoleConfig.new().load_cfg()` reads these, then `DOT_CONSOLE_*` environment variables and `--console-*` flags.
+Defaults are in `cfg/addon/gs_console/console.yml`. A game overrides them in `cfg/game/<game>/gs_console/`, and the server operator in `cfg/server/addon/gs_console/` or `cfg/server/game/<game>/gs_console/` (strongest). `GSConsoleConfig.new().load_cfg()` reads these, then `GS_CONSOLE_*` environment variables and `--console-*` flags.
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `open_action` | `dot_console_toggle` | The input action that opens the console. |
+| `open_action` | `gs_console_toggle` | The input action that opens the console. |
 | `scrollback_lines` | 2048 | Lines of scrollback kept. The inspector slider runs 16 to 100000. |
 | `history_lines` | 128 | Lines of typed history kept. The inspector slider runs 4 to 10000. |
 | `chat_command_prefixes` | `/` and `!` | Prefixes treated as chat commands. |

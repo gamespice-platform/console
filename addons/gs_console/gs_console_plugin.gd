@@ -6,18 +6,18 @@ extends EditorPlugin
 ## No autoloads: a host and a client in one process are two consoles with two sets of
 ## sources, and a global would make them one.
 
-const _ICON := "res://addons/dot_console/icon_placeholder.svg"
+const _ICON := "res://addons/gs_console/icon_placeholder.svg"
 
 const _TYPES := [
 	[
 		"GSConsoleController",
 		"Node",
-		"res://addons/dot_console/runtime/dot_console_controller.gd",
+		"res://addons/gs_console/runtime/gs_console_controller.gd",
 	],
 	[
 		"GSConsolePanel",
 		"Control",
-		"res://addons/dot_console/runtime/dot_console_panel.gd",
+		"res://addons/gs_console/runtime/gs_console_panel.gd",
 	],
 ]
 

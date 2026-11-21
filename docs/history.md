@@ -12,7 +12,7 @@ Typing at a real console later found the prefix-only suggester empty for `master
 
 ## The panel never asked for argument completion
 
-`_complete()` returned early on any space, with a comment saying argument completion belongs to whoever knows what the argument means. Right about the principle, wrong about the consequence: it never asked, so `kick ` and `log ` offered nothing on every console in the family. dot-server's half was dead too (`complete_argument` had no callers). Two halves of one feature, each correct, never introduced.
+`_complete()` returned early on any space, with a comment saying argument completion belongs to whoever knows what the argument means. Right about the principle, wrong about the consequence: it never asked, so `kick ` and `log ` offered nothing on every console in the family. gs-server's half was dead too (`complete_argument` had no callers). Two halves of one feature, each correct, never introduced.
 
 ## The guard that was always red
 

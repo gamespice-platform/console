@@ -15,7 +15,7 @@ extends GSConsoleSource
 ## at construction, and what is missing is simply not offered.
 ##
 ## [codeblock]
-## var server_console := GSRegistry.get_service(&"dot_server")
+## var server_console := GSRegistry.get_service(&"gs_server")
 ## console.add_source(GSConsoleBridge.wrap(server_console.console))
 ## [/codeblock]
 

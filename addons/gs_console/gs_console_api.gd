@@ -13,8 +13,8 @@ extends RefCounted
 # 3: GSConsoleKit.add_self_mute(local): the `sm` command, in local_source.
 # 4: GSConsoleLine.without_secrets(line); redact/is_secret look at every statement and at a
 #    secret command after a prefix word (same signatures, stricter answers).
-# 5: GSConsoleConfig.apply_cfg_file and load_cfg read cfg/addons/dot_console/console.yml and
-#    the operator's cfg/server/addons/dot_console/, with a flat cfg/console.yml as a shim until
+# 5: GSConsoleConfig.apply_cfg_file and load_cfg read cfg/addons/gs_console/console.yml and
+#    the operator's cfg/server/addons/gs_console/, with a flat cfg/console.yml as a shim until
 #    the end of 2026. Needs GameSpice Core API level 16 (GSAddonConfig.apply_file).
 const LEVEL := 5
 const OLDEST := 1

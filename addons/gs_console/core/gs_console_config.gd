@@ -14,7 +14,7 @@ extends GSConfig
 ##
 ## Checked first. A game with a rebinder — GameSpice UI ships one — wants the console's key to
 ## be rebindable like every other, and an action is the only thing a rebinder can see.
-@export var open_action: StringName = &"dot_console_toggle"
+@export var open_action: StringName = &"gs_console_toggle"
 
 ## The physical key used when no action is defined. Godot's [enum Key] values.
 ##
@@ -93,7 +93,7 @@ extends GSConfig
 
 
 func env_prefix() -> String:
-	return "DOT_CONSOLE_"
+	return "GS_CONSOLE_"
 
 
 func cli_prefix() -> String:
@@ -110,18 +110,18 @@ func validate() -> GSResult:
 	return GSResult.success(null)
 
 
-## The addon name [GSAddonConfig] turns into the folder `dot_console`.
-const CFG_ADDON := "dot-console"
+## The addon name [GSAddonConfig] turns into the folder `gs_console`.
+const CFG_ADDON := "gs-console"
 
 
-## Applies [param file_name] from `cfg/addons/dot_console/`, the game's `cfg/game/<game>/dot_console/`, then the operator's `cfg/server/addons/` and `cfg/server/game/<game>/` copies.
+## Applies [param file_name] from `cfg/addons/gs_console/`, the game's `cfg/game/<game>/gs_console/`, then the operator's `cfg/server/addons/` and `cfg/server/game/<game>/` copies.
 ## A flat [param legacy_dir]/[param file_name] is still read (one WARN) while no new copy exists.
 ## Secrets stay file-only: the environment and command line still refuse them.
 func apply_cfg_file(file_name: String = "console.yml", legacy_dir: String = "res://cfg") -> GSResult:
 	return GSAddonConfig.apply_file(CFG_ADDON, file_name, legacy_dir, apply_dictionary)
 
 
-## [method apply_cfg_file], then `DOT_CONSOLE_*`, `--console-*` and validation: [method GSConfig.load_layered] for the yml layout.
+## [method apply_cfg_file], then `GS_CONSOLE_*`, `--console-*` and validation: [method GSConfig.load_layered] for the yml layout.
 func load_cfg(file_name: String = "console.yml", legacy_dir: String = "res://cfg") -> GSResult:
 	unknown_keys = PackedStringArray()
 	var file_res := apply_cfg_file(file_name, legacy_dir)
