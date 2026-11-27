@@ -2,6 +2,8 @@
 
 The in-game developer console for Godot 4.7+, opened with a key. It gives you a line editor, history, tab completion, scrollback and a bridge to whatever command system your game already has. Part of the [GameSpice](https://github.com/gamespice-platform) family. It needs only [GameSpice Core](https://github.com/gamespice-platform/core).
 
+A GameSpice addon (MIT, built with Claude Code) with two offline headless tests, `console_selftest` and `cfg_selftest` under `examples/`. The games in [Zee's Games](https://zeesgames.com) are built on the GameSpice addons and run on live servers, so this is the console their players and admins open.
+
 GameSpice Console is a console, not a command system. GameSpice Server already has commands, cvars, permissions, aliases and completion, and a second copy would drift. GameSpice Console owns the key, line editing, history, scrollback and drawing, and asks sources to run the line.
 
 ## Install
@@ -85,9 +87,26 @@ godot --headless --path . res://examples/cfg_selftest.tscn
 
 The self-tests are offline and exit non-zero on any failure. The design is in [docs/design.md](docs/design.md).
 
-## Status
+## Used by
 
-Built and maintained with Claude Code. The test suites pass, but little of this has been in front of real players yet. Please report rough edges by opening an issue.
+Every game in the collection vendors it:
+
+- [Fatal Contact](https://zeesgames.com/fatal-contact)
+- [Airdrift](https://zeesgames.com/airdrift)
+- [Playlot](https://zeesgames.com/playlot)
+- [Hungario](https://zeesgames.com/hungario)
+- [Buses From Hell](https://zeesgames.com/buses-from-hell)
+- [Smash Copter](https://zeesgames.com/smash-copter)
+- [Zombie Zone](https://zeesgames.com/zombie-zone)
+- [Hide n Seek](https://zeesgames.com/hide-n-seek)
+- [Prop Hunt](https://zeesgames.com/prop-hunt)
+- [Murder Mystery](https://zeesgames.com/murder-mystery)
+- [Deathrun](https://zeesgames.com/deathrun)
+- [Wipeout](https://zeesgames.com/wipeout)
+- [Dangerous Delivery](https://zeesgames.com/dangerous-delivery)
+- [Look At Me](https://zeesgames.com/look-at-me)
+
+The whole collection is at [zeesgames.com](https://zeesgames.com).
 
 ## Licence
 
